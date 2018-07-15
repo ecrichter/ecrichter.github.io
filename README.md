@@ -1,4 +1,5 @@
 <img src="https://avatars2.githubusercontent.com/u/25747408?s=400&u=9768be8368db48caa42a9da763bbadb86aefab9c&v=4" align="right"/>
+
 # Data Science Portfolio by Eric Richter
 A compilation of projects I have undertaken in data analysis and exploration of machine learning algorithms.
 
