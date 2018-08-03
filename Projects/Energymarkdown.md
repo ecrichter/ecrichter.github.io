@@ -2,6 +2,15 @@ Energy Submetering
 ================
 Eric Richter
 
+-   [Importing the Data](#importing-the-data)
+-   [Preprocessing](#preprocessing)
+-   [Exploratory Data Analysis](#exploratory-data-analysis)
+-   [Visualize the Data](#visualize-the-data)
+-   [Prepare to Analyze the Data](#prepare-to-analyze-the-data)
+-   [Forecasting](#forecasting)
+-   [Decomposing Seasonal Time Series'](#decomposing-seasonal-time-series)
+-   [Holt-Winters Forecasting](#holt-winters-forecasting)
+
 In this project I'm developing analytics for a set of electircal sub-metering devices used for power management in Smart Homes. Installing such devices allows developers to offer highly efficient Smart Homes that provide owners with power usage analytics.
 
 ``` r
@@ -13,15 +22,12 @@ library(lubridate)
 library(plotly)
 ```
 
-Obtaining the data using SQL Query
-==================================
+Importing the Data
+==================
 
 The data is stored on a database in several annual tables (yr\_2006, yr\_2007, yr\_2008, yr\_2009, yr\_2010). I'm using the RMySQL package to query the database and retrieve the data. dbListFields allows me to see the attributes in the dataset.
 
 ``` r
-## Create a database connection
-con = dbConnect(MySQL(), user='deepAnalytics', password='Sqltask1234!', dbname='dataanalytics2018', host='data-analytics-2018.cbrosir2cswx.us-east-1.rds.amazonaws.com')
-
 ## List the tables contatined in the database
 dbListFields(con, "yr_2006")
 ```
@@ -235,8 +241,8 @@ head(main)
     ## 5   18     28
     ## 6   18     29
 
-Initial Data Exploration
-========================
+Exploratory Data Analysis
+=========================
 
 ``` r
 attach(main)
@@ -296,6 +302,7 @@ Week24plot <- plot_ly(houseWeek242008hour, x = ~houseWeek242008hour$DateTime, y 
 houseMonth6July2008 <- filter(main, year == 2008 & month == 7 & (hour == 0 | hour==6 | hour==12 | hour==18) & minute ==0)
 Month6plot6 <- plot_ly(houseMonth6July2008, x = ~houseMonth6July2008$DateTime, y = ~houseMonth6July2008$Sub1, name = 'Kitchen', type='scatter', mode='lines') %>% add_trace(y = ~houseMonth6July2008$Sub2, name = 'Laundry Room', mode = 'lines') %>% add_trace(y=~houseMonth6July2008$Sub3, name = 'Water Heater & AC', mode = 'lines')%>% layout(title="Power Consumption the month of July, 2008", xaxis = list(title = "Time"), yaxis=list(title="Power (watt-hours)"))
 ```
+
 ![](Energymarkdown_files/figure-markdown_github/Jan9Plot2.png)
 
 ![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-9-2.png)
@@ -333,19 +340,19 @@ library(ggfortify)
 autoplot(tsSM3_070809weekly, ts.colour = 'red', xlab = "Time", ylab = "Watt Hours", main = "Sub-meter 3")
 ```
 
-![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-13-1.png)
+![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-14-1.png)
 
 ``` r
 autoplot(tsSM1_08Janhourly, ts.colour = 'blue', xlab = "Day", ylab = "Watt Hours", main = "Sub-meter 1")
 ```
 
-![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-13-2.png)
+![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-14-2.png)
 
 ``` r
 autoplot(tsSM2_janDaily, ts.colour = 'olivedrab', xlab = "Year", ylab = "Watt Hours", main = "Sub-meter2")
 ```
 
-![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-13-3.png)
+![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-14-3.png)
 
 Forecasting
 ===========
@@ -543,19 +550,19 @@ forecastfitSM1 <- forecast(fitSM1, h=20)
 plot(forecastfitSM3)
 ```
 
-![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-15-1.png)
+![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-16-1.png)
 
 ``` r
 plot(forecastfitSM2)
 ```
 
-![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-15-2.png)
+![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-16-2.png)
 
 ``` r
 plot(forecastfitSM1)
 ```
 
-![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-15-3.png)
+![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-16-3.png)
 
 ``` r
 ## Add confidence levels 80 and 90 to frecasts and plot with labels and limited y
@@ -565,19 +572,19 @@ forecastfitSM1c <- forecast(fitSM1, h=20, level=c(80,90))
 plot(forecastfitSM3c, ylim = c(0, 20), ylab= "Watt-Hours", xlab="Time")
 ```
 
-![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-15-4.png)
+![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-16-4.png)
 
 ``` r
 plot(forecastfitSM2c, ylim = c(0, 30), ylab= "Watt-Hours", xlab="Year")
 ```
 
-![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-15-5.png)
+![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-16-5.png)
 
 ``` r
 plot(forecastfitSM1c, ylim = c(0, 45), ylab= "Watt-Hours", xlab="Day")
 ```
 
-![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-15-6.png)
+![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-16-6.png)
 
 Decomposing Seasonal Time Series'
 =================================
@@ -593,19 +600,19 @@ componentsJanSM2daily <- decompose(tsSM2_janDaily)
 plot(components070809SM3weekly)
 ```
 
-![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-16-1.png)
+![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-17-1.png)
 
 ``` r
 plot(components08JanSM1hourly)
 ```
 
-![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-16-2.png)
+![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-17-2.png)
 
 ``` r
 plot(componentsJanSM2daily)
 ```
 
-![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-16-3.png)
+![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-17-3.png)
 
 ``` r
 ## check summary statistics for the decomposed sub-meters
@@ -663,19 +670,19 @@ tsSM2_HWJanDaily <- HoltWinters(tsSM2_janDailyAdjusted, beta = FALSE, gamma = FA
 plot(tsSM3_HW070809, ylim = c(0,25))
 ```
 
-![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-17-1.png)
+![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-18-1.png)
 
 ``` r
 plot(tsSM1_HW08Jan, ylim = c(0, 40))
 ```
 
-![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-17-2.png)
+![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-18-2.png)
 
 ``` r
 plot(tsSM2_HWJanDaily, ylim = c(0, 30))
 ```
 
-![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-17-3.png)
+![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-18-3.png)
 
 The plots above contain the exponentially smooth fitted line in red along with the original data points in black. Exponential smoothing helps to account for outliers and make trends standout in a clearer way.
 
@@ -690,19 +697,19 @@ tsSM2_HWJanDailyfor <- forecast(tsSM2_HWJanDaily, h=30)
 plot(tsSM3_HW070809for, ylim = c(0, 20))
 ```
 
-![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-18-1.png)
+![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-19-1.png)
 
 ``` r
 plot(tsSM1_HW08Janfor, ylim = c(0, 40))
 ```
 
-![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-18-2.png)
+![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-19-2.png)
 
 ``` r
 plot(tsSM2_HWJanDailyfor, ylim = c(0, 30))
 ```
 
-![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-18-3.png)
+![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-19-3.png)
 
 Its helpful to see the forecast in the context of the original visualization, but it's not really necessary to include the preceeding data. We can plot only the forecasted area to provide the most succinct information for analysis.
 
@@ -715,18 +722,18 @@ tsSM2_HWJanDailyforC <- forecast(tsSM2_HWJanDaily, h=30, level = c(10,25))
 plot(tsSM3_HW070809forC, ylim = c(0, 20), ylab = "Watt-Hours", xlab="Time - Sub-meter 3", start(2010))
 ```
 
-![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-19-1.png)
+![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-20-1.png)
 
 ``` r
 plot(tsSM1_HW08Janfor, ylim = c(0, 40), ylab = "Watt-Hours", xlab= "Day - Sub-meter 1", start(32))
 ```
 
-![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-19-2.png)
+![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-20-2.png)
 
 ``` r
 plot(tsSM2_HWJanDailyfor, ylim = c(0, 30), ylab = "Watt-Hours", xlab="Year - Sub-meter 2", start(2011))
 ```
 
-![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-19-3.png)
+![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-20-3.png)
 
 The resulting images show very consistend forecasts for all three submeters. All of these details will be useful when preparing reports to consumers, management companies, and developers.
