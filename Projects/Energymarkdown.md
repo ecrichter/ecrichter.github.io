@@ -303,11 +303,17 @@ houseMonth6July2008 <- filter(main, year == 2008 & month == 7 & (hour == 0 | hou
 Month6plot6 <- plot_ly(houseMonth6July2008, x = ~houseMonth6July2008$DateTime, y = ~houseMonth6July2008$Sub1, name = 'Kitchen', type='scatter', mode='lines') %>% add_trace(y = ~houseMonth6July2008$Sub2, name = 'Laundry Room', mode = 'lines') %>% add_trace(y=~houseMonth6July2008$Sub3, name = 'Water Heater & AC', mode = 'lines')%>% layout(title="Power Consumption the month of July, 2008", xaxis = list(title = "Time"), yaxis=list(title="Power (watt-hours)"))
 ```
 
-![](Energymarkdown_files/figure-markdown_github/Jan9Plot2.png)
+![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-10-1.png)
 
-![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-9-2.png)
+This graph shows energy usage by all three submeters, labelled byu their locations, over the course of a single day. We can see that the laundry room maintains relatively small but somewhat consistent usage throughout the day, whereas the kichen has one big spike in the evening and nothing during the rest of the day. This is most likely from cooking dinner after being away at work or elsewhere and thus not using the kichen. The water heater & ac had moderate usage throughout most of the day. A homeowner might see this and realize how much energy they could save if they adjusted their thermostat during the day or considered how much energy their water heater uses.
+
+![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-10-2.png)
+
+This graph shows observations from the three submeters taken every hour for a week. We can see in, contrast to a single day like the previous graph showed, there are more spikes in energy usage from the laundry room over a week. It is possible that laundry was done twice during the week, on the evening of the 13th and the evening of the 15th. It could be insightful to a homeowner how much power a single laundry day can consume. Similarly, there are seven spikes in energy usage from the kitchen which likely corresponds to meal times. The water heater and ac unit is consistenly moderate but does seem to drop off in the early morning hours. Perhaps the nights are cool in June at this location requiring less ac power consumption at night.
 
 ![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-10-3.png)
+
+This graph shows 4 observations per day over the course of a month. While there are occasional spikes in energy usage from the kitchen and laundry room, as would be expected, the most striking aspect of this visualization is the vast amount of energy consumed by the water heater and AC unit. Even if it is never a max reading, it is consistently moderae, which adds up. Even a small lifestyle adjustement or energy efficient appliances could make a big difference in this area.
 
 Prepare to Analyze the Data
 ===========================
@@ -342,17 +348,23 @@ autoplot(tsSM3_070809weekly, ts.colour = 'red', xlab = "Time", ylab = "Watt Hour
 
 ![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-14-1.png)
 
+Submeter 3 corresponds to the electric water heater and air conditioner. The above time series is composed of one observation per week for three years. It appears somewhat grandular, but it is clear that these appliances are consuming a large portion of energy on a consistent basis.
+
 ``` r
 autoplot(tsSM1_08Janhourly, ts.colour = 'blue', xlab = "Day", ylab = "Watt Hours", main = "Sub-meter 1")
 ```
 
 ![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-14-2.png)
 
+Submeter 1 corresponds to the kitchen. This time series data is composed of one observation per hour for the month of January 2008. Although the energy usage is not as consistent as the heater and air conditioner, the spikes are much higher!
+
 ``` r
 autoplot(tsSM2_janDaily, ts.colour = 'olivedrab', xlab = "Year", ylab = "Watt Hours", main = "Sub-meter2")
 ```
 
 ![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-14-3.png)
+
+Submeter 2 corresponds to the laundry room. This time series data is composed of one observation per day for each January month of the corresponding year. To be clear, we are looking at January usage from 2007 to 2011, or about four months of data. This visualization reafirms that laundry is done only occasionally. The power usage is not nearly as consistent as in the kichen and ac/water heater units.
 
 Forecasting
 ===========
