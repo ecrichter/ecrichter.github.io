@@ -666,39 +666,34 @@ summary(componentsJanSM2daily)
 Holt-Winters Forecasting
 ========================
 
-Holt-Winters forecasting is another algorithm that can be used to forecast a time series using exponential smoothing. To utilize Holt-Winters forecasting the seasonal component identified via decomposition must first be removed.
+Holt-Winters forecasting is another algorithm that can be used to forecast a time series using exponential smoothing. Holt-Winters forecasting is only effective on seasonal data, so I am using the pre-decomposed data.
 
 ``` r
-## Seasonal adjusting sub-meters by subtracting the seasonal component
-tsSM3_070809Adjusted <- tsSM3_070809weekly - components070809SM3weekly$seasonal
-tsSM1_08JanhourlyAdjusted <- tsSM1_08Janhourly - components08JanSM1hourly$seasonal
-tsSM2_janDailyAdjusted <- tsSM2_janDaily - componentsJanSM2daily$seasonal
-
-## Holt Winters Exponential Smoothing & Plot
-tsSM3_HW070809 <- HoltWinters(tsSM3_070809Adjusted, beta = FALSE, gamma = FALSE)
-tsSM1_HW08Jan <- HoltWinters(tsSM1_08JanhourlyAdjusted, beta = FALSE, gamma = FALSE)
-tsSM2_HWJanDaily <- HoltWinters(tsSM2_janDailyAdjusted, beta = FALSE, gamma = FALSE)
+## Holt Winters Original Time Series & Plot
+tsSM3_HW070809 <- HoltWinters(tsSM3_070809weekly)
+tsSM1_HW08Jan <- HoltWinters(tsSM1_08Janhourly)
+tsSM2_HWJanDaily <- HoltWinters(tsSM2_janDaily)
 
 plot(tsSM3_HW070809, ylim = c(0,25))
 ```
 
-![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-18-1.png)
+![](Energymarkdown_files/figure-markdown_github/tsSM3_HW070809.png)
 
 ``` r
 plot(tsSM1_HW08Jan, ylim = c(0, 40))
 ```
 
-![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-18-2.png)
+![](Energymarkdown_files/figure-markdown_github/tsSM1_HW08Jan.png)
 
 ``` r
 plot(tsSM2_HWJanDaily, ylim = c(0, 30))
 ```
 
-![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-18-3.png)
+![](Energymarkdown_files/figure-markdown_github/tsSM2_HWJanDaily.png)
 
 The plots above contain the exponentially smooth fitted line in red along with the original data points in black. Exponential smoothing helps to account for outliers and make trends standout in a clearer way.
 
-Now that we have a ts object that contains exponentially smoothed data with no seasonality we can forecast again.
+Now that we have a ts object that contains exponentially smoothed data we can forecast again.
 
 ``` r
 ## Holt Winters forecast & plot
@@ -709,19 +704,19 @@ tsSM2_HWJanDailyfor <- forecast(tsSM2_HWJanDaily, h=30)
 plot(tsSM3_HW070809for, ylim = c(0, 20))
 ```
 
-![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-19-1.png)
+![](Energymarkdown_files/figure-markdown_github/tsSM3_HW070809for.png)
 
 ``` r
 plot(tsSM1_HW08Janfor, ylim = c(0, 40))
 ```
 
-![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-19-2.png)
+![](Energymarkdown_files/figure-markdown_github/tsSM1_HW08Janfor.png)
 
 ``` r
 plot(tsSM2_HWJanDailyfor, ylim = c(0, 30))
 ```
 
-![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-19-3.png)
+![](Energymarkdown_files/figure-markdown_github/tsSM2_HWJanDailyfor.png)
 
 Its helpful to see the forecast in the context of the original visualization, but it's not really necessary to include the preceeding data. We can plot only the forecasted area to provide the most succinct information for analysis.
 
@@ -734,18 +729,18 @@ tsSM2_HWJanDailyforC <- forecast(tsSM2_HWJanDaily, h=30, level = c(10,25))
 plot(tsSM3_HW070809forC, ylim = c(0, 20), ylab = "Watt-Hours", xlab="Time - Sub-meter 3", start(2010))
 ```
 
-![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-20-1.png)
+![](Energymarkdown_files/figure-markdown_github/tsSM3_HW070809forC.png)
 
 ``` r
 plot(tsSM1_HW08Janfor, ylim = c(0, 40), ylab = "Watt-Hours", xlab= "Day - Sub-meter 1", start(32))
 ```
 
-![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-20-2.png)
+![](Energymarkdown_files/figure-markdown_github/tsSM1_HW08JanforC.png)
 
 ``` r
 plot(tsSM2_HWJanDailyfor, ylim = c(0, 30), ylab = "Watt-Hours", xlab="Year - Sub-meter 2", start(2011))
 ```
 
-![](Energymarkdown_files/figure-markdown_github/unnamed-chunk-20-3.png)
+![](Energymarkdown_files/figure-markdown_github/tsSM2_HWJanDailyforC.png)
 
 The resulting images show very consistend forecasts for all three submeters. All of these details will be useful when preparing reports to consumers, management companies, and developers.
