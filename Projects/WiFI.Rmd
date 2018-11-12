@@ -1,0 +1,88 @@
+---
+title: "WiFi Fingerprinting"
+output:
+  github_document:
+    toc: true
+---
+# Introduction
+Many real world applications rely on a user's location to provide optimal service. Thanks to the inclusion of GPS sensors in mobile devices, outdoor localization can be pinpointed very accurately. However, indoor localization remains a problem due to the loss of GPS signal in indoor environments. Wi-Fi positioning system is a geolocation system that uses the characteristics of nearby Wi-Fi hotspots and other wireless access points to discover where a device is located.
+
+This analysis uses the [UJIIndoorLoc Data Set](http://archive.ics.uci.edu/ml/datasets/UJIIndoorLoc) to develop models capable of reliably locating the position of a user's device using signals from wireless access point (WAPs). The data set contains 520 WAPs as well as user data such as longitude, latitude, user ID, phone ID, and building-specific location values. After initial pre-processing I combined the dependent variables into one value, and then proceeded to modeling with encouraging results. 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r, message=FALSE, warning=FALSE}
+library(caret)
+library(dplyr)
+library(tidyr)
+```
+# Importing the data
+```{r}
+## Download, unzip, and import the data
+temp <- tempfile()
+download.file("http://archive.ics.uci.edu/ml/machine-learning-databases/00310/UJIndoorLoc.zip",temp)
+training <- read.csv(unz(temp, "UJIndoorLoc/trainingData.csv"))
+validation <- read.csv(unz(temp, "UJIndoorLoc/validationData.csv"))
+unlink(temp)
+```
+# Preprocessing
+According to the dataset description there are 529 attributes. The first step is to identify which of these features are not necessary. I will use the nearZeroVar function in the caret package to accomplish this, and eliminate redundant attributes.
+```{r}
+## Create a working copy of the data 
+workData<-training
+
+## Remove zero variance features
+zeroVarData <- nearZeroVar(training, saveMetrics = TRUE)
+zeroVarData1 <- which(zeroVarData$zeroVar == T)
+
+## Rewrite working copy
+workData <- training[,-(zeroVarData1)]
+```
+Most of the attributes are WiFi fingerprints listed as integer values. The final 9 attributes contain other useful attributes including our dependent variables.
+```{r}
+str(workData[,466:474])
+```
+Some of these attributes are not needed for this evaluation. Others need to be converted to factors.
+```{r}
+## Set datatypes
+workData$FLOOR<-as.factor(workData$FLOOR)
+workData$BUILDINGID<-as.factor(workData$BUILDINGID)
+workData$SPACEID<-as.factor(workData$SPACEID)
+workData$RELATIVEPOSITION<-as.factor(workData$RELATIVEPOSITION)
+
+## Remove uneeded features
+workData$USERID<-NULL
+workData$PHONEID<-NULL
+workData$TIMESTAMP<-NULL
+```
+Because there are more than one attributes related to location in the dataset, there is a need to combine them into one depednent variable. 
+```{r}
+## Combine dependent variables
+uniteData <- workData %>% unite("LOCATION", "BUILDINGID", "FLOOR", "SPACEID", remove = TRUE)
+uniteData$RELATIVEPOSITION<-NULL
+```
+# Modeling
+Three models were created and run on the dataset: native bayes, k nearest neighbor, and random forest. The CARET package is extremely useful for training and testing these models.
+```{r}
+## Split data into training and test sets and generate resampling procedure using 10-fold cross validation
+set.seed(23)
+inTraining <- createDataPartition(uniteData$LOCATION, p=.75, list = FALSE)
+training <- uniteData[inTraining, ]
+testing <- uniteData[-inTraining, ]
+fitControl <- trainControl(method="repeatedcv", number = 10, repeats = 1)
+```
+```{r, cache=TRUE}
+## Train the models
+knnFitr1 <- train(LOCATION~., data = training, method = "kknn", trControl=fitControl)
+knnFitr1
+nbFit1 <- train(LOCATION~., data = training, method = "naive_bayes", trControl=fitControl)
+nbFit1
+rfFit1 <- train(LOCATION~., data = training, method = "rf", trControl=fitControl, tuneLength=1)
+rfFit1
+```
+```{r}
+## Compare all models using resampling
+ModelData <- resamples(list(KNN = knnFitr1, NB = nbFit1, RF = rfFit1))
+summary(ModelData)
+```
+The random forest model generates a high accuracy and kappa value. Using this model indoor locationing can be achieved with confidence.
