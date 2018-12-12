@@ -133,18 +133,6 @@ knnFitr1
 
 ``` r
 nbFit1 <- train(LOCATION~., data = training, method = "naive_bayes", trControl=fitControl)
-```
-
-    ## Warning: model fit failed for Fold06.Rep1: usekernel= TRUE, laplace=0, adjust=1 Error in density.default(x, na.rm = TRUE, ...) : 
-    ##   need at least 2 points to select a bandwidth automatically
-
-    ## Warning: model fit failed for Fold10.Rep1: usekernel= TRUE, laplace=0, adjust=1 Error in density.default(x, na.rm = TRUE, ...) : 
-    ##   need at least 2 points to select a bandwidth automatically
-
-    ## Warning in nominalTrainWorkflow(x = x, y = y, wts = weights, info =
-    ## trainInfo, : There were missing values in resampled performance measures.
-
-``` r
 nbFit1
 ```
 
